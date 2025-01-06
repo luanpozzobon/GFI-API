@@ -5,6 +5,7 @@ import br.com.fynncs.email_service.persist.IEmail;
 import br.com.fynncs.email_service.persist.rowmapper.EmailMapper;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,9 +29,9 @@ public class Email implements IEmail {
     }
 
     @Override
-    public br.com.fynncs.email_service.model.Email findByType(String type) throws SQLException {
+    public br.com.fynncs.email_service.model.Email findByType(String type, String enterprise) throws SQLException {
         StringBuilder textSQL = createTextSQL(Optional.empty());
-        textSQL.append(" WHERE em.type = ?");
-        return manager.queryObject(textSQL, type, new EmailMapper());
+        textSQL.append(" WHERE em.type = ? and em.enterprise = ?");
+        return manager.queryObject(textSQL, Arrays.asList(type, enterprise), new EmailMapper());
     }
 }

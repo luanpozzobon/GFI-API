@@ -6,6 +6,6 @@ import java.sql.SQLException;
 
 public interface IEmailTypeAssembly<T> {
 
-    EmailType createEmailType(String type, T value) throws SQLException;
+    EmailType createEmailType(String type, String enterprise, T value) throws SQLException;
 
 }
