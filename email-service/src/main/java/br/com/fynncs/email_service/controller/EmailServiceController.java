@@ -42,4 +42,26 @@ public class EmailServiceController {
             throw new Exception("Error send email reset password", ex);
         }
     }
+
+    @PostMapping("/fynncs/sendConfirmEmail")
+    public ResponseEntity<String> sendConfirmEmail(HttpServletRequest request, @RequestBody Client client) throws Exception {
+        Authentication authentication = Authentication.deserialize(((Principal) request.getAttribute("userPrincipal")).getName());
+        CRUDManager manager = null;
+        try {
+            manager = new CRUDManager(
+                    ResourceService.findResourceById(ConnectionProvider.valueOf(authentication.getConnectionProvider()),
+                            "NOTIFICATION", ResourceType.DATABASECONNECTION),
+                    ConnectionProvider.valueOf(authentication.getConnectionProvider()));
+            IEmailTypeAssembly<Client> assembly = new EmailResetPasswordService(manager);
+            EmailType emailType = assembly.createEmailType("CONFIRMEMAIL", "fynncs", client);
+            kafkaProducer.send("email", emailType);
+            return ResponseEntity.ok("Success");
+        } catch (Exception ex) {
+            throw new Exception("Error send email reset password", ex);
+        }finally {
+            if(manager != null){
+                manager.close();
+            }
+        }
+    }
 }
