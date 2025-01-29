@@ -24,14 +24,14 @@ public class Email implements IEmail {
         textSQL.append("type, ");
         textSQL.append("body ");
         additionalFields.ifPresent(x -> textSQL.append(", ").append(x.parallelStream().collect(Collectors.joining(", "))));
-        textSQL.append(" from general.email em ");
+        textSQL.append(" from parameter.email em ");
         return textSQL;
     }
 
     @Override
-    public br.com.fynncs.email_service.model.Email findByType(String type, String enterprise) throws SQLException {
+    public br.com.fynncs.email_service.model.Email findByType(String type, String system) throws SQLException {
         StringBuilder textSQL = createTextSQL(Optional.empty());
-        textSQL.append(" WHERE em.type = ? and em.enterprise = ?");
-        return manager.queryObject(textSQL, Arrays.asList(type, enterprise), new EmailMapper());
+        textSQL.append(" WHERE em.type = ? and em.system = ?");
+        return manager.queryObject(textSQL, Arrays.asList(type, system), new EmailMapper());
     }
 }
