@@ -10,8 +10,10 @@ import java.sql.SQLException;
 
 @Service
 public class RegisterService {
-    private final CRUDManager manager;
-    private IUser userPersist;
+    private CRUDManager manager;
+    private UserService userService;
+
+    private RegisterService() { }
 
     public RegisterService(CRUDManager manager) throws Exception {
         this.manager = manager;
@@ -19,12 +21,20 @@ public class RegisterService {
     }
 
     private void initializer() throws Exception {
-        this.userPersist = CreatePersist.createUser(this.manager);
+        this.userService = new UserService(this.manager);
     }
 
-    public void register(User user) throws SQLException, IllegalAccessException {
-        if (this.userPersist.persist(user) > 0) {
-            // TODO - Enviar email OTP
+    public void register(User user) throws Exception {
+        try {
+            this.manager.beginRequest();
+
+            int lines = this.userService.persist(user);
+        } catch (Exception ex) {
+            if (!this.manager.isClosed() && this.manager.inTransaction())
+                this.manager.revertTransaction();
+
+            throw ex;
         }
+
     }
 }

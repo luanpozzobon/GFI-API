@@ -12,6 +12,7 @@ public class User extends ModelState<User> {
     private String oauthProvider;
     private String password;
     private Person person;
+    private List<System> systems;
 
     public UUID getId() {
         return id;
@@ -56,5 +57,13 @@ public class User extends ModelState<User> {
     @RegisterAttributeModified("person")
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    public List<System> getSystems() {
+        return systems;
+    }
+
+    public void setSystems(List<System> systems) {
+        this.systems = systems;
     }
 }

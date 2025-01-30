@@ -24,6 +24,8 @@ public class RegisterController {
         )) {
             RegisterService service = new RegisterService(manager);
             service.register(user);
+
+            return ResponseEntity.ok().build();
         } catch (Exception ex) {
             throw new Exception("Error trying to register user", ex);
         }
