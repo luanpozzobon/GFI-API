@@ -23,7 +23,7 @@ public class RegisterService {
     }
 
     public void register(User user) throws SQLException, IllegalAccessException {
-        if (this.userPersist.persist(user)) {
+        if (this.userPersist.persist(user) > 0) {
             // TODO - Enviar email OTP
         }
     }

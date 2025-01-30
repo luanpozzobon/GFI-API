@@ -9,11 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>br.com.fynncs</groupId>
-    <artifactId>register</artifactId>
+    <artifactId>auth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>register</name>
-    <description>Demo project for Spring Boot</description>
+    <name>auth</name>
     <url/>
     <licenses>
         <license/>

@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @Import(FilterRegistration.class)
-public class RegisterApplication {
+public class AuthApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RegisterApplication.class, args);
+        SpringApplication.run(AuthApplication.class, args);
     }
 
 }

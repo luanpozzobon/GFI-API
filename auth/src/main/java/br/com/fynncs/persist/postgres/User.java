@@ -13,7 +13,7 @@ public class User implements IUser {
     }
 
     @Override
-    public boolean persist(br.com.fynncs.model.User user) throws SQLException, IllegalAccessException {
-        return manager.persist(user) > 0;
+    public Integer persist(br.com.fynncs.model.User user) throws SQLException, IllegalAccessException {
+        return manager.persist(user);
     }
 }

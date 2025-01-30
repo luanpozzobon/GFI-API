@@ -6,5 +6,5 @@ import java.sql.SQLException;
 
 public interface IUser {
 
-    boolean persist(User user) throws SQLException, IllegalAccessException;
+    Integer persist(User user) throws SQLException, IllegalAccessException;
 }
