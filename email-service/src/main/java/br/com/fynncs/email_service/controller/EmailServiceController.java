@@ -5,6 +5,7 @@ import br.com.fynncs.core.enums.ConnectionProvider;
 import br.com.fynncs.core.enums.ResourceType;
 import br.com.fynncs.core.model.Resource;
 import br.com.fynncs.core.service.ResourceService;
+import br.com.fynncs.email_service.comum.EmailValidator;
 import br.com.fynncs.email_service.kafka.KafkaConsumer;
 import br.com.fynncs.email_service.kafka.KafkaProducer;
 import br.com.fynncs.email_service.model.EmailType;
@@ -87,15 +88,18 @@ public class EmailServiceController {
                 .concat(authentication.getSystem()));
     }
 
-    private EmailUser createEmailUser(User user, String link) {
-        return new EmailUser(user.name(), user.email(), link);
+    private EmailUser createEmailUser(User user, String link) throws Exception {
+        if(!EmailValidator.validate(user.person().email())){
+            throw new Exception("Email inválido!");
+        }
+        return new EmailUser(user.person().name(), user.person().email(), link);
     }
 
     private EmailType createEmailType(CRUDManager manager, User user, Authentication authentication, String id, String link) throws Exception {
         IEmailTypeAssembly<EmailUser> assembly = switch (id) {
             case "CONFIRMEMAIL" -> createConfirmEmailType(manager);
             case "RESETPASSWORD" -> createResetPassWordEmailType(manager);
-            default -> throw new Exception("Tipo invalido");
+            default -> throw new Exception("Tipo inválido");
         };
         return assembly.createEmailType(authentication.getSystem(),
                 createEmailUser(user, link));
