@@ -2,11 +2,7 @@ package br.com.fynncs.service;
 
 import br.com.fynncs.core.connection.CRUDManager;
 import br.com.fynncs.model.User;
-import br.com.fynncs.persist.CreatePersist;
-import br.com.fynncs.persist.IUser;
 import org.springframework.stereotype.Service;
-
-import java.sql.SQLException;
 
 @Service
 public class RegisterService {
@@ -24,11 +20,16 @@ public class RegisterService {
         this.userService = new UserService(this.manager);
     }
 
-    public void register(User user) throws Exception {
+    public boolean register(User user) throws Exception {
         try {
+            if (this.userService.findByLogin(user.getLogin().getFirst(), user.getOauthProvider(), Boolean.FALSE) != null) {
+                return Boolean.FALSE;
+            }
             this.manager.beginRequest();
 
             int lines = this.userService.persist(user);
+
+            return lines > 0;
         } catch (Exception ex) {
             if (!this.manager.isClosed() && this.manager.inTransaction())
                 this.manager.revertTransaction();

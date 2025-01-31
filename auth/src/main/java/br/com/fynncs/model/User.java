@@ -63,6 +63,7 @@ public class User extends ModelState<User> {
         return systems;
     }
 
+    @RegisterAttributeModified("system")
     public void setSystems(List<System> systems) {
         this.systems = systems;
     }

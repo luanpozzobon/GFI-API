@@ -26,13 +26,11 @@ public class UserService {
     private void initializer() throws Exception {
         this.userDAO = CreatePersist.createUser(this.manager);
 
-        this.personService = new PersonService(this.manager);
         this.systemService = new SystemService(this.manager);
     }
 
     private User populate(User user) throws Exception {
         if (user != null) {
-            user.setPerson(personService.findById(user.getId()));
             user.setSystems(systemService.findByUser(user.getId()));
         }
 
@@ -43,18 +41,6 @@ public class UserService {
         int lines = this.userDAO.persist(user);
 
         if (lines < 1) throw new Exception("No changes occurred!");
-
-        Person person;
-        if (user.isNew() && user.getPerson() == null) {
-            person = new Person();
-            person.setUserId(user.getId());
-            this.personService.persist(person);
-        }
-
-        if (user.isModified() && user.checkerModifiedAttributes("person")) {
-            person = user.getPerson();
-            this.personService.persist(person);
-        }
 
         return lines;
     }
@@ -69,10 +55,6 @@ public class UserService {
 
     public User findByLogin(String login, boolean populate) throws Exception {
         return this.findByLogin(login, null, populate);
-    }
-
-    public User findByLogin(String login, String oauthProvider) throws Exception {
-        return this.findByLogin(login, oauthProvider, Boolean.FALSE);
     }
 
     public User findByLogin(String login, String oauthProvider, boolean populate) throws Exception {

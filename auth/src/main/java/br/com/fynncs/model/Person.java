@@ -11,6 +11,7 @@ public class Person extends ModelState<Person> {
     private String nickname;
     private String name;
     private LocalDate birthday;
+    private String email;
     private String gender;
     private String nationality;
     private String maritalStatus;
@@ -50,6 +51,15 @@ public class Person extends ModelState<Person> {
     @RegisterAttributeModified("birthday")
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    @RegisterAttributeModified("email")
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getGender() {

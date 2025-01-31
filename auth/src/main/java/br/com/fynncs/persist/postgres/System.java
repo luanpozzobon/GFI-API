@@ -41,4 +41,11 @@ public class System implements ISystem {
 
         return this.manager.queryList(textSQL, userId, new SystemMapper());
     }
+
+    @Override
+    public List<br.com.fynncs.model.System> getAll() throws SQLException {
+        StringBuilder textSQL = this.createTextSQL(Optional.empty());
+
+        return this.manager.queryList(textSQL, null, new SystemMapper());
+    }
 }

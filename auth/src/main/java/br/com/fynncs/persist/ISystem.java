@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface ISystem {
 
     List<System> findByUser(UUID userId) throws SQLException;
+
+    List<System> getAll() throws SQLException;
 }

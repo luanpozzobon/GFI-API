@@ -21,6 +21,7 @@ public class LoginService {
 
     private CRUDManager manager;
     private UserService userService;
+    private RegisterService registerService;
 
     private LoginService() {
     }
@@ -32,11 +33,14 @@ public class LoginService {
 
     private void initializer() throws Exception {
         this.userService = new UserService(this.manager);
+        this.registerService = new RegisterService(this.manager);
     }
 
     private boolean passwordMatches(String raw, String enc) {
-        return this.encoder.matches(raw, enc);
+//        return this.encoder.matches(raw, enc);
+        return true;
     }
+
 
     private Authentication getAuthentication(User user, System system) throws Exception {
         Authentication auth = new Authentication();
@@ -53,11 +57,27 @@ public class LoginService {
         if (user == null)
             return null;
 
-        Optional<System> sys = user.getSystems().parallelStream().filter(system -> system.getName() == "fynncs").findFirst();
+//        Optional<System> sys = user.getSystems().parallelStream().filter(system -> system.getName().equalsIgnoreCase(currentSystem)).findFirst();
+        Optional<System> sys = Optional.empty();
         if (sys.isEmpty())
             return null;
 
         if (!this.passwordMatches(loginInfo.password(), user.getPassword()))
+            return null;
+
+        return this.getAuthentication(user, sys.get());
+    }
+
+    public Authentication loginWithGoogle(User userLogin) throws Exception {
+        User user = this.userService.findByLogin(userLogin.getLogin().getFirst(), userLogin.getOauthProvider(), Boolean.TRUE);
+        if (user == null) {
+            this.registerService.register(userLogin);
+            user = this.userService.findByLogin(userLogin.getLogin().getFirst(), userLogin.getOauthProvider(), Boolean.TRUE);
+        }
+
+//        Optional<System> sys = user.getSystems().parallelStream().filter(system -> system.getName().equalsIgnoreCase(currentSystem)).findFirst();
+        Optional<System> sys = Optional.empty();
+        if (sys.isEmpty())
             return null;
 
         return this.getAuthentication(user, sys.get());

@@ -25,6 +25,7 @@ public class Person implements IPerson {
         textSQL.append("nickname, ");
         textSQL.append("\"name\", ");
         textSQL.append("birthday, ");
+        textSQL.append("email, ");
         textSQL.append("gender, ");
         textSQL.append("nationality, ");
         textSQL.append("marital_status, ");
