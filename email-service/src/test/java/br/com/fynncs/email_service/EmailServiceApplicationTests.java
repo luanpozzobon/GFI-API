@@ -1,15 +1,20 @@
 package br.com.fynncs.email_service;
 
-import br.com.fynncs.email_service.kafka.KafkaProducer;
+import br.com.fynncs.core.comum.AbstractTable;
+import br.com.fynncs.core.config.AbstractTableConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 @SpringBootTest
+@Import(AbstractTableConfig.class)
 class EmailServiceApplicationTests {
 
+    //    @Autowired
+//    private KafkaProducer kafkaProducer;
     @Autowired
-    private KafkaProducer kafkaProducer;
+    private AbstractTable table;
 
     @Test
     void contextLoads() throws Exception {

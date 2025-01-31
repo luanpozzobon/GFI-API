@@ -10,6 +10,7 @@ import br.com.fynncs.email_service.kafka.KafkaProducer;
 import br.com.fynncs.email_service.model.EmailType;
 import br.com.fynncs.email_service.record.EmailUser;
 import br.com.fynncs.email_service.record.User;
+import br.com.fynncs.email_service.service.email.ConfirmEmailService;
 import br.com.fynncs.email_service.service.email.EmailResetPasswordService;
 import br.com.fynncs.email_service.service.interfaces.IEmailTypeAssembly;
 import br.com.fynncs.security.model.Authentication;
@@ -31,7 +32,7 @@ public class EmailServiceController {
     @PostMapping("/sendResetPassword")
     public ResponseEntity<String> sendEmail(HttpServletRequest request, @RequestBody User user) throws Exception {
         Authentication authentication = Authentication.deserialize(((Principal) request.getAttribute("userPrincipal")).getName());
-        try (CRUDManager manager = createCrudManager(authentication, "NOTIFICATION", ResourceType.DATABASECONNECTION)) {
+        try (CRUDManager manager = createCrudManager(authentication, "STANDARD", ResourceType.DATABASECONNECTION)) {
             final String id = "RESETPASSWORD";
             EmailType emailType = createEmailType(manager, user, authentication, id, null);
             kafkaProducer.send("email", emailType);
@@ -44,7 +45,7 @@ public class EmailServiceController {
     @PostMapping("/sendConfirmEmail")
     public ResponseEntity<String> sendConfirmEmail(HttpServletRequest request, @RequestBody User user) throws Exception {
         Authentication authentication = Authentication.deserialize(((Principal) request.getAttribute("userPrincipal")).getName());
-        try(CRUDManager manager = createCrudManager(authentication, "NOTIFICATION", ResourceType.DATABASECONNECTION)) {
+        try (CRUDManager manager = createCrudManager(authentication, "STANDARD", ResourceType.DATABASECONNECTION)) {
             String transactionID = UUID.randomUUID().toString();
             final String id = "CONFIRMEMAIL";
             EmailType emailType = createEmailType(manager, user, authentication, id,
@@ -57,11 +58,11 @@ public class EmailServiceController {
         }
     }
 
-    @PostMapping("/confirm/{id}")
-    public ResponseEntity<String> sendConfirmEmail(HttpServletRequest request, @RequestParam String id) throws Exception {
+    @GetMapping("/confirm/{id}")
+    public ResponseEntity<String> sendConfirmEmail(HttpServletRequest request, @PathVariable String id) throws Exception {
         Authentication authentication = Authentication.deserialize(((Principal) request.getAttribute("userPrincipal")).getName());
-        try{
-            KafkaConsumer.consumerTransaction(id);
+        try {
+            KafkaConsumer.consumerTransaction(id, kafkaProducer, User.class);
             return ResponseEntity.ok("Success");
         } catch (Exception ex) {
             throw new Exception("Error send email reset password", ex);
@@ -91,9 +92,21 @@ public class EmailServiceController {
     }
 
     private EmailType createEmailType(CRUDManager manager, User user, Authentication authentication, String id, String link) throws Exception {
-        IEmailTypeAssembly<EmailUser> assembly = new EmailResetPasswordService(manager);
-        return assembly.createEmailType(id, authentication.getSystem(),
+        IEmailTypeAssembly<EmailUser> assembly = switch (id) {
+            case "CONFIRMEMAIL" -> createConfirmEmailType(manager);
+            case "RESETPASSWORD" -> createResetPassWordEmailType(manager);
+            default -> throw new Exception("Tipo invalido");
+        };
+        return assembly.createEmailType(authentication.getSystem(),
                 createEmailUser(user, link));
+    }
+
+    private IEmailTypeAssembly<EmailUser> createResetPassWordEmailType(CRUDManager manager) throws Exception {
+        return new EmailResetPasswordService(manager);
+    }
+
+    private IEmailTypeAssembly<EmailUser> createConfirmEmailType(CRUDManager manager) throws Exception {
+        return new ConfirmEmailService(manager);
     }
 
 }

@@ -25,18 +25,19 @@ public class EmailResetPasswordService implements IEmailTypeAssembly<EmailUser> 
     }
 
     @Override
-    public EmailType createEmailType(String type, String system, EmailUser value) throws SQLException {
-        Email email = emailPersist.findByType(type, system);
+    public EmailType createEmailType(String system, EmailUser value) throws SQLException {
+        Email email = emailPersist.findByType("RESETPASSWORD", system);
         EmailType emailType = new EmailType();
-        emailType.setBody(body(email.getBody(), value));
+        emailType.setBody(body(email.getBody(), value, system));
         emailType.setSubject("Reset Password!");
         emailType.setTo(value.email());
         return emailType;
     }
 
-    private String body(String body, EmailUser value) {
+    private String body(String body, EmailUser value, String system) {
         body = body.replace("@ClientName", value.name());
         body = body.replace("@ResetPasswordLink", value.link());
+        body = body.replace("@EnterpriseName", system);
         return body;
     }
 }

@@ -31,7 +31,7 @@ public class Email implements IEmail {
     @Override
     public br.com.fynncs.email_service.model.Email findByType(String type, String system) throws SQLException {
         StringBuilder textSQL = createTextSQL(Optional.empty());
-        textSQL.append(" WHERE em.type = ? and em.system = ?");
+        textSQL.append(" WHERE em.type ilike ? and em.system ilike ?");
         return manager.queryObject(textSQL, Arrays.asList(type, system), new EmailMapper());
     }
 }

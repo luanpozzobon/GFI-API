@@ -2,7 +2,6 @@ package br.com.fynncs.email_service.kafka;
 
 import br.com.fynncs.email_service.comum.ObjectMapper;
 import br.com.fynncs.email_service.model.EmailType;
-import br.com.fynncs.email_service.record.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -11,9 +10,9 @@ import org.springframework.stereotype.Service;
 public class KafkaProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final KafkaTopicCreator topicCreator;
+    private final KafkaTopicManager topicCreator;
 
-    public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate, KafkaTopicCreator topicCreator) {
+    public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate, KafkaTopicManager topicCreator) {
         this.kafkaTemplate = kafkaTemplate;
         this.topicCreator = topicCreator;
     }
@@ -27,20 +26,13 @@ public class KafkaProducer {
         }
     }
 
-    public void sendConfirmEmail(String key, User user) {
+    public void sendConfirmEmail(String key, Object object) throws JsonProcessingException {
         final String topic = "confirm-email";
         createTopic(topic, 1, 1);
-        kafkaTemplate.executeInTransaction(operations -> {
-            try {
-                operations.send(topic, key, ObjectMapper.writeValueAsString(user));
-                return true;
-            } catch (JsonProcessingException e) {
-                return false;
-            }
-        });
+        kafkaTemplate.send(topic, key, ObjectMapper.writeValueAsString(object));
     }
 
-    private void createTopic(String topic, int partitions, int replicationFactor){
+    private void createTopic(String topic, int partitions, int replicationFactor) {
         topicCreator.createTopic(topic, partitions, (short) replicationFactor);
     }
 }
