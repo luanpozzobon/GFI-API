@@ -1,6 +1,7 @@
 package br.com.fynncs.service;
 
 import br.com.fynncs.core.connection.CRUDManager;
+import br.com.fynncs.model.System;
 import br.com.fynncs.model.User;
 import br.com.fynncs.records.Login;
 import br.com.fynncs.security.model.Authentication;
@@ -9,10 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class LoginService {
     @Autowired
     private PasswordEncoder encoder;
+    @Autowired
+    private TokenSecurity tokenSecurity;
 
     private CRUDManager manager;
     private UserService userService;
@@ -33,13 +38,14 @@ public class LoginService {
         return this.encoder.matches(raw, enc);
     }
 
-    private Authentication temp(User user) throws Exception {
+    private Authentication getAuthentication(User user, System system) throws Exception {
         Authentication auth = new Authentication();
         auth.setIdentifier(user.getId().toString());
 
+        String token = this.tokenSecurity.createToken(auth);
+        auth.setToken(token);
 
-        TokenSecurity tokenSecurity = new TokenSecurity();
-
+        return auth;
     }
 
     public Authentication login(Login loginInfo) throws Exception {
@@ -47,15 +53,13 @@ public class LoginService {
         if (user == null)
             return null;
 
-
-
-        if(!this.passwordMatches(loginInfo.password(), user.getPassword())) {
+        Optional<System> sys = user.getSystems().parallelStream().filter(system -> system.getName() == "fynncs").findFirst();
+        if (sys.isEmpty())
             return null;
-        }
 
+        if (!this.passwordMatches(loginInfo.password(), user.getPassword()))
+            return null;
+
+        return this.getAuthentication(user, sys.get());
     }
-
-
-
-
 }

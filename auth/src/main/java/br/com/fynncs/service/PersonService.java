@@ -10,8 +10,10 @@ import java.util.UUID;
 
 @Service
 public class PersonService {
-    private final CRUDManager manager;
+    private CRUDManager manager;
     private IPerson personDAO;
+
+    private PersonService() { }
 
     public PersonService(CRUDManager manager) throws Exception {
         this.manager = manager;

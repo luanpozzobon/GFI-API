@@ -11,10 +11,12 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-    private final CRUDManager manager;
+    private CRUDManager manager;
     private IUser userDAO;
     private PersonService personService;
     private SystemService systemService;
+
+    private UserService() { }
 
     public UserService(CRUDManager manager) throws Exception {
         this.manager = manager;
