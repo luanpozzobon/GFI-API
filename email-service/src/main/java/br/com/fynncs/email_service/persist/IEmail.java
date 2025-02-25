@@ -6,5 +6,5 @@ import java.sql.SQLException;
 
 public interface IEmail {
 
-    Email findByType(String type, String enterprise) throws SQLException;
+    Email findByType(String type, String system) throws SQLException;
 }
