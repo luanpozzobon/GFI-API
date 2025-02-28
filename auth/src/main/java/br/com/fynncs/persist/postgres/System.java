@@ -4,6 +4,7 @@ import br.com.fynncs.core.connection.CRUDManager;
 import br.com.fynncs.persist.ISystem;
 import br.com.fynncs.persist.rowmapper.SystemMapper;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -32,14 +33,14 @@ public class System implements ISystem {
     }
 
     @Override
-    public List<br.com.fynncs.model.System> findByUser(UUID userId) throws SQLException {
+    public List<br.com.fynncs.model.System> findByUser(String userId) throws SQLException {
         StringBuilder textSQL = this.createTextSQL(Optional.empty());
 
         textSQL.append("INNER JOIN nentech.\"user_access\" ua ON ");
-        textSQL.append("s.id = ua.id ");
+        textSQL.append("s.id = ua.system_id ");
         textSQL.append("WHERE ua.user_id = ? ");
 
-        return this.manager.queryList(textSQL, userId, new SystemMapper());
+        return this.manager.queryList(textSQL, userId.toString(), new SystemMapper());
     }
 
     @Override
@@ -47,5 +48,21 @@ public class System implements ISystem {
         StringBuilder textSQL = this.createTextSQL(Optional.empty());
 
         return this.manager.queryList(textSQL, null, new SystemMapper());
+    }
+
+    public int saveUserAccess(String userId, UUID systemId) throws SQLException {
+        StringBuilder textSQL = new StringBuilder();
+        textSQL.append("INSERT INTO\tnentech.user_access ( ");
+        textSQL.append("user_id, ");
+        textSQL.append("system_id, ");
+        textSQL.append("access_level ");
+        textSQL.append(") ");
+        textSQL.append("VALUES(?, ?, 'U'::bpchar); ");
+
+        PreparedStatement stmt = this.manager.prepareStatement(textSQL.toString());
+        stmt.setString(1, userId);
+        stmt.setString(2, systemId.toString());
+
+        return stmt.executeUpdate();
     }
 }

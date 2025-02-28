@@ -1,6 +1,8 @@
 package br.com.fynncs.persist.rowmapper;
 
+import br.com.fynncs.core.enums.State;
 import br.com.fynncs.core.interfaces.IRowMapper;
+import br.com.fynncs.core.proxy.ProxyModel;
 import br.com.fynncs.model.Person;
 
 import java.sql.ResultSet;
@@ -10,7 +12,7 @@ import java.util.UUID;
 public class PersonMapper implements IRowMapper<Person> {
     @Override
     public Person createObject(ResultSet resultSet) throws SQLException {
-        Person person = new Person();
+        Person person = ProxyModel.createProxy(new Person());
 
         person.setUserId(UUID.fromString(resultSet.getString("user_id")));
         person.setNickname(resultSet.getString("nickname"));
@@ -22,6 +24,7 @@ public class PersonMapper implements IRowMapper<Person> {
         person.setProfession(resultSet.getString("profession"));
         person.setEducation(resultSet.getString("education"));
 
+//        person.setState(State.ORIGINAL);
         return person;
     }
 }

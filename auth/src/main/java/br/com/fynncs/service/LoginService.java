@@ -1,5 +1,6 @@
 package br.com.fynncs.service;
 
+import br.com.fynncs.config.EncoderConfig;
 import br.com.fynncs.core.connection.CRUDManager;
 import br.com.fynncs.model.System;
 import br.com.fynncs.model.User;
@@ -20,31 +21,45 @@ public class LoginService {
     private TokenSecurity tokenSecurity;
 
     private CRUDManager manager;
+    private System system;
+
     private UserService userService;
     private RegisterService registerService;
+    private SystemService systemService;
 
-    private LoginService() {
-    }
+    private LoginService() { }
 
-    public LoginService(CRUDManager manager) throws Exception {
+    public LoginService(CRUDManager manager, System system) throws Exception {
         this.manager = manager;
+        if (system == null)
+            throw new Exception("Current System not Informed!");
+        this.system = system;
+
         this.initializer();
     }
 
     private void initializer() throws Exception {
         this.userService = new UserService(this.manager);
-        this.registerService = new RegisterService(this.manager);
+        this.registerService = new RegisterService(this.manager, this.system);
+        this.systemService = new SystemService();
+    }
+
+    public void initializer(CRUDManager manager, System system) throws Exception {
+        this.manager = manager;
+        if (system == null)
+            throw new Exception("Current System not Informed!");
+        this.system = system;
+
+        this.initializer();
     }
 
     private boolean passwordMatches(String raw, String enc) {
-//        return this.encoder.matches(raw, enc);
-        return true;
+        return this.encoder.matches(raw, enc);
     }
-
 
     private Authentication getAuthentication(User user, System system) throws Exception {
         Authentication auth = new Authentication();
-        auth.setIdentifier(user.getId().toString());
+        auth.setId(user.getId().toString());
 
         String token = this.tokenSecurity.createToken(auth);
         auth.setToken(token);
@@ -57,29 +72,22 @@ public class LoginService {
         if (user == null)
             return null;
 
-//        Optional<System> sys = user.getSystems().parallelStream().filter(system -> system.getName().equalsIgnoreCase(currentSystem)).findFirst();
-        Optional<System> sys = Optional.empty();
-        if (sys.isEmpty())
+        if (!this.systemService.userHasAccessToSystem(user, this.system))
             return null;
 
         if (!this.passwordMatches(loginInfo.password(), user.getPassword()))
             return null;
 
-        return this.getAuthentication(user, sys.get());
+        return this.getAuthentication(user, this.system);
     }
 
     public Authentication loginWithGoogle(User userLogin) throws Exception {
         User user = this.userService.findByLogin(userLogin.getLogin().getFirst(), userLogin.getOauthProvider(), Boolean.TRUE);
-        if (user == null) {
+        if (user == null || !this.systemService.userHasAccessToSystem(user, this.system)) {
             this.registerService.register(userLogin);
-            user = this.userService.findByLogin(userLogin.getLogin().getFirst(), userLogin.getOauthProvider(), Boolean.TRUE);
+            return null;
         }
 
-//        Optional<System> sys = user.getSystems().parallelStream().filter(system -> system.getName().equalsIgnoreCase(currentSystem)).findFirst();
-        Optional<System> sys = Optional.empty();
-        if (sys.isEmpty())
-            return null;
-
-        return this.getAuthentication(user, sys.get());
+        return this.getAuthentication(user, this.system);
     }
 }

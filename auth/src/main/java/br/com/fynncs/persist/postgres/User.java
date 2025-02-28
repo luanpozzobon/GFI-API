@@ -18,7 +18,7 @@ public class User implements IUser {
         StringBuilder textSQL = new StringBuilder();
 
         textSQL.append("SELECT ");
-        textSQL.append("u.id AS user_id, ");
+        textSQL.append("u.id, ");
         textSQL.append("u.login, ");
         textSQL.append("u.oauth_provider, ");
         textSQL.append("u.\"password\" ");

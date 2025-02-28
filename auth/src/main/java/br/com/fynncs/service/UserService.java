@@ -1,7 +1,6 @@
 package br.com.fynncs.service;
 
 import br.com.fynncs.core.connection.CRUDManager;
-import br.com.fynncs.model.Person;
 import br.com.fynncs.model.User;
 import br.com.fynncs.persist.CreatePersist;
 import br.com.fynncs.persist.IUser;
@@ -13,7 +12,6 @@ import java.util.UUID;
 public class UserService {
     private CRUDManager manager;
     private IUser userDAO;
-    private PersonService personService;
     private SystemService systemService;
 
     private UserService() { }
@@ -41,6 +39,12 @@ public class UserService {
         int lines = this.userDAO.persist(user);
 
         if (lines < 1) throw new Exception("No changes occurred!");
+
+        if (!user.isDeleted()) {
+            if (user.isNew() || user.checkerModifiedAttributes("systems")) {
+                this.systemService.saveUserAccess(user);
+            }
+        }
 
         return lines;
     }

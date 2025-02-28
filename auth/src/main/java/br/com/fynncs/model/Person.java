@@ -30,6 +30,7 @@ public class Person extends ModelState<Person> {
     public String getNickname() {
         return nickname;
     }
+
     @RegisterAttributeModified("nickname")
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -105,5 +106,20 @@ public class Person extends ModelState<Person> {
     @RegisterAttributeModified("education")
     public void setEducation(String education) {
         this.education = education;
+    }
+
+    public br.com.fynncs.record.Person toRecord() {
+        return new br.com.fynncs.record.Person(
+                this.getUserId(),
+                this.getNickname(),
+                this.getName(),
+                this.getBirthday(),
+                this.getGender(),
+                this.getNationality(),
+                this.getMaritalStatus(),
+                this.getProfession(),
+                this.getEducation(),
+                this.getEmail()
+        );
     }
 }
